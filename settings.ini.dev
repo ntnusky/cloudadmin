@@ -1,0 +1,16 @@
+[general]
+debug = true
+secret = *nb=w$bn8k$#asd94sextftb!&vh@yg=r9-7)lpg5)$7p&-m8l
+staticpath = ./static
+
+[database]
+type = sqlite
+name = db.sqlite3
+
+[hosts]
+localhost = 127.0.0.1
+
+[LDAP]
+url = ldaps://foo.bar.com:636
+search-base = OU=Brukere,DC=foo,DC=bar,DC=com
+domain = foobar

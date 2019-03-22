@@ -1,0 +1,28 @@
+{% extends "base/main.html" %} 
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-12">
+      <h1>Debug-page</h1>
+      <p>This page simply exposes some information about the user logged in.
+      Intended to be used for debugging.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-sm-12 col-md-8 col-lg-6">
+      <h1>User information</h1>
+      <ul>
+        <li><b>Firstname:</b> {{ user.first_name }}</li>
+        <li><b>Lastname:</b> {{ user.last_name }}</li>
+        <li><b>Username:</b> {{ user.username }}</li>
+        <li><b>E-mail:</b> {{ user.email }}</li>
+        <li><b>Groups:</b></li>
+        <ul>
+          {% for g in user.groups.all %}
+            <li>{{g.name}}</li>
+          {% endfor %}
+        </ul>
+      </ul>
+    </div>  
+  </div>
+{% endblock page-content %} 
