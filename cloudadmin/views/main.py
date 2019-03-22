@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render, redirect
 from django.utils.datastructures import MultiValueDictKeyError
 
+from cloudadmin.settings import parser
 from cloudadmin.utils import createContext, requireSuperuser
 
 @login_required
@@ -20,7 +21,7 @@ def debug(request):
 def loginPage(request):
   context = {}
 
-  context['horizonurl'] = 'https://skyhigh.iik.ntnu.no'
+  context['horizonurl'] = parser.get('openstack', 'horizon') 
 
   try:
     context['next'] = request.GET['next']

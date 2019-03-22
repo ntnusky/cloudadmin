@@ -10,6 +10,9 @@ name = db.sqlite3
 [hosts]
 localhost = 127.0.0.1
 
+[openstack]
+horizon = https://horizon.foo.bar.com
+
 [LDAP]
 url = ldaps://foo.bar.com:636
 search-base = OU=Brukere,DC=foo,DC=bar,DC=com
