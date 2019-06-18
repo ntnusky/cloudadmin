@@ -1,0 +1,66 @@
+<div class="col-12 col-sm-12 col-md-6 col-lg-4">
+  <h4>Project information</h4>
+  <ul>
+    <li><b>ID:</b> {{project.id}}</li>
+    <li><b>Domain:</b> {{project.domain_name}}</li>
+    <li><b>Description:</b> {{project.description}}</li>
+    <li><b>Expiry:</b> {{project.Expire}}</li>
+  </ul>
+</div>
+<div class="col-12 col-sm-12 col-md-6 col-lg-8">
+  <h4>Usage:</h4>
+  <p class="progressinfo small">CPU:</p>
+  <div class="progress">
+    <div class="progress-bar bg-success" role="progressbar" 
+        style="width: {{project.usage.compute.cpu_percent}}%;" 
+        aria-valuenow="{{project.usage.compute.cpu}}" aria-valuemin="0" 
+        aria-valuemax="{{project.quota.compute.cpu}}">
+      {{project.usage.compute.cpu}}/{{project.quota.compute.cpu}}
+    </div>
+  </div>
+  <p class="progressinfo small">RAM:</p>
+  <div class="progress">
+    <div class="progress-bar bg-success" role="progressbar" 
+        style="width: {{project.usage.compute.ram_percent}}%;" 
+        aria-valuenow="{{project.usage.compute.ram_mb}}" aria-valuemin="0" 
+        aria-valuemax="{{project.quota.compute.ram_mb}}">
+      {{project.usage.compute.ram_human}}/{{project.quota.compute.ram_human}}
+    </div>
+  </div>
+  <p class="progressinfo small">Cinder volumes:</p>
+  <div class="progress">
+    <div class="progress-bar bg-success" role="progressbar" 
+        style="width: {{project.usage.volumes.volumes_percent}}%;" 
+        aria-valuenow="{{project.usage.volumes.volumes}}" aria-valuemin="0" 
+        aria-valuemax="{{project.quota.volumes.volumes}}">
+      {{project.usage.volumes.volumes}}/{{project.quota.volumes.volumes}}
+    </div>
+  </div>
+  <p class="progressinfo small">Cinder capacity:</p>
+  <div class="progress">
+    <div class="progress-bar bg-success" role="progressbar" 
+        style="width: {{project.usage.volumes.gigabytes_percent}}%;" 
+        aria-valuenow="{{project.usage.volumes.gigabytes}}" aria-valuemin="0" 
+        aria-valuemax="{{project.quota.volumes.gigabytes}}">
+      {{project.usage.volumes.gigabytes_human}}/{{project.quota.volumes.gigabytes_human}}
+    </div>
+  </div>
+  <p class="progressinfo small">Swift capacity:</p>
+  <div class="progress">
+    <div class="progress-bar bg-success" role="progressbar" 
+        style="width: {{project.usage.swift.bytes_percent}}%;" 
+        aria-valuenow="{{project.usage.swift.bytes}}" aria-valuemin="0" 
+        aria-valuemax="{{project.quota.swift.user.max_size}}">
+      {{project.usage.swift.bytes_human}}/{{project.quota.swift.user.max_size_human}}
+    </div>
+  </div>
+  <p class="progressinfo small">Swift objects:</p>
+  <div class="progress">
+    <div class="progress-bar bg-success" role="progressbar" 
+        style="width: {{project.usage.swift.objects_percent}}%;" 
+        aria-valuenow="{{project.usage.swift.objects}}" aria-valuemin="0" 
+        aria-valuemax="{{project.quota.swift.user.max_objects}}">
+      {{project.usage.swift.objects_human}}/{{project.quota.swift.user.max_objects_human}}
+    </div>
+  </div>
+</div>

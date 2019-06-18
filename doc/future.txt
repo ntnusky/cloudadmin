@@ -1,0 +1,17 @@
+Future plans:
+
+API+frontend for user-applications:
+API+frontend to manage applications:
+API+frontend to manage expire-time
+Automatic notifications when expire is near.
+Automatic marking for deletion.
+
+API for s3-management:
+  s3/user/:
+    GET:    List users with access to a certain projects s3
+    POST:   Create a new s3-user
+  
+  s3/user/<id>/:
+    GET:    Retrieve a specific s3-user
+    POST:   Update a new s3-user
+    DELETE: Delete an existing s3-user

@@ -53,7 +53,8 @@ AUTHENTICATION_BACKENDS = ("django_python3_ldap.auth.LDAPBackend",)
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
+    'cloudadmin.middleware.CloudadminCsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -130,7 +131,7 @@ try:
   STATIC_ROOT = parser.get('general', 'staticpath')
 except NoOptionError:
   STATIV_ROOT = None
-LOGIN_URL = '/login/'
+LOGIN_URL = '/web/login/'
 
 # The URL of the LDAP server.
 LDAP_AUTH_URL = parser.get('LDAP', 'url') 
@@ -186,14 +187,13 @@ LDAP_AUTH_FORMAT_SEARCH_FILTERS = "django_python3_ldap.utils.format_search_filte
 
 LDAP_AUTH_MEMBER_OF_ATTRIBUTE = "memberOf"
 LDAP_AUTH_GROUP_ATTRS = {
-  "CN=ie-iik_skylow_admins,OU=bas,OU=Grupper,DC=win,DC=ntnu,DC=no": "is_superuser",
+  parser.get('LDAP', 'superusers'): "is_superuser",
 }
-LDAP_AUTH_GROUP_RELATIONS = {
-  "CN=ie-iik_skyhigh_admins,OU=bas,OU=Grupper,DC=win,DC=ntnu,DC=no": "SkyHiGh",
-  "CN=hr_ie-iik,OU=bas,OU=Grupper,DC=win,DC=ntnu,DC=no": "IIK",
-  "CN=hr_ie-iik_f,OU=bas,OU=Grupper,DC=win,DC=ntnu,DC=no": "IIK",
-  "CN=hr_LOL-iik_f,OU=bas,OU=Grupper,DC=win,DC=ntnu,DC=no": "LOL",
-}
+
+basename = parser.get('LDAP', 'group-base')
+LDAP_AUTH_GROUP_RELATIONS = {}
+for group, name in parser.items('Groups'):
+  LDAP_AUTH_GROUP_RELATIONS['CN=%s,%s' % (group, basename)] = name
 
 LDAP_AUTH_FORMAT_USERNAME = "django_python3_ldap.utils.format_username_active_directory"
 LDAP_AUTH_ACTIVE_DIRECTORY_DOMAIN = parser.get('LDAP', 'domain')

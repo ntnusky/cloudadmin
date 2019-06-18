@@ -1,0 +1,530 @@
+{% extends "base/main.html" %} 
+{% load staticfiles%}
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-12">
+      <h1>Cloud-admin</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+      <h2>Quota-templates</h2>
+      <p>These are the pre-made quota-templates available, which can help
+      creating projects of standarized sizes. Some templates might be global,
+      created by an administrator, and is thus not editable by you. Others might
+      be created by you, or one of your project's administrators</p>
+
+      <table id="quotatemplates" class="table table-striped table-sm">
+        <thead>
+          <th>Name</th>
+          <th>Project</th>
+          <th>CPU's</th>
+          <th>RAM</th>
+          <th>Cinder</th>
+          <th>Swift</th>
+          <th></th>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="spinner-border" role="status"></div></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn btn-primary" id="createQTemplate">Create quota template</button>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+      <h2>Openstack projects</h2>
+      <p>You have access to the following openstack projects:</p>
+      <table id="osprojects" class="table table-striped table-sm">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Domain</th>
+            <th>CPU's</th>
+            <th>RAM</th>
+            <th>Cinder</th>
+            <th>Swift</th>
+            <th>Expiry</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="spinner-border" role="status"></div></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn btn-primary" id="createOSProject">Create OpenStack project</button>
+      <p></p>
+    </div>
+
+    {% if user.is_superuser %}
+      <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+        <h3>Unmanaged projects</h3>
+        <p>These are the openstack-projects which are not currently connected to
+        an cloudadmin project:</p>
+
+        <table id="osunmanaged" class="table table-striped table-sm">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Domain</th>
+              <th>CPU's</th>
+              <th>RAM</th>
+              <th>Cinder</th>
+              <th>Swift</th>
+              <th>Expiry</th>
+              <td></td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="spinner-border" role="status"></div></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- QuotaTemplate-modal -->
+  <div class="modal" id="QTModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Quota Template</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form id="newQT">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="0">
+            <input type="hidden" name="qt" value="0">
+            <div class="row">
+              <div class="col-12">
+                <h5>Quota Template</h5>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="project">Project:</label>
+                  <select class="form-control" id="project" name="project">
+                  </select>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="name">Template name:</label>
+                  <input type="text" class="form-control" name="name" 
+                      id="name" placeholder="Template name">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h5>Project quotas</h5>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cpu_cores">CPUs:</label>
+                  <input type="text" class="form-control quotaform" id="cpu_cores" 
+                      name="cpu_cores" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="ram">RAM (GB):</label>
+                  <input type="text" class="form-control quotaform" id="ram" 
+                      name="ram_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cinder_gb">Cinder capacity (GB):</label>
+                  <input type="text" class="form-control quotaform" id="cinder_gb" 
+                      name="cinder_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cinder_volumes">Cinder volumes:</label>
+                  <input type="text" class="form-control quotaform"
+                      id="cinder_volumes" name="cinder_volumes" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="swift-capacity">Swift capacity (GB):</label>
+                  <input type="text" class="form-control quotaform" id="swift-capacity" 
+                      name="swift_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="swift-objects">Swift objects:</label>
+                  <input type="text" class="form-control quotaform" id="swift-objects" 
+                      name="swift_objects" placeholder="">
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div id="createQTMessage"></div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="submitQT">Create Template</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Project-modal -->
+  <div class="modal" id="projectModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Create project</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form id="newOSProjectForm">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="0">
+            <input type="hidden" name="osproject" id="osproject" value="create">
+            <input type="hidden" name="parentid" id="parentid" value="0">
+            <input type="hidden" name="volumetypeid" id="volumetypeid" value="0">
+            <div class="row">
+              <div class="col-12">
+                <h5>Project properties</h5>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="parentProject">Cloud-admin project:</label>
+                  <select class="form-control" id="parentProject"
+                      name="parent">
+                  </select>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="name">Openstack project name:</label>
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="projectPrefix">
+                      </span>
+                    </div>
+                    <input type="text" class="form-control" name="name" 
+                        id="name" placeholder="Project name">
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="description">Description:</label>
+                  <textarea class="form-control" rows="5" id="description"
+                      name="description"></textarea>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="expiry">Expiry:</label>
+                    <input type="date" class="form-control" name="expiry" 
+                        id="expiry">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h5>Project quotas</h5>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="quotatemplate">Quota:</label>
+                  <select class="form-control" name="quotatemplate" 
+                      id="quotatemplate">
+                    <option id="0">Manual</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cpu_cores">CPUs:</label>
+                  <input type="text" class="form-control quotaform" id="cpu_cores" 
+                      name="cpu_cores" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="ram">RAM (GB):</label>
+                  <input type="text" class="form-control quotaform" id="ram" 
+                      name="ram_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cinder_gb">Cinder capacity (GB):</label>
+                  <input type="text" class="form-control quotaform" id="cinder_gb" 
+                      name="cinder_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cinder_volumes">Cinder volumes:</label>
+                  <input type="text" class="form-control quotaform"
+                      id="cinder_volumes" name="cinder_volumes" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="volumetypes">Volume types:</label>
+                  <select class="form-control" name="volumetypes" 
+                      id="volumetypes">
+                    <option value="0" id="0">Slow</option>
+                    <option value="1" id="1">Slow and Normal</option>
+                    {% if user.is_superuser %}
+                      <option value="2" id="2">Slow to Fast</option>
+                      <option value="3" id="3">Slow to VeryFast</option>
+                      <option value="4" id="4">All</option>
+                    {% endif %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="swift-capacity">Swift capacity (GB):</label>
+                  <input type="text" class="form-control quotaform" id="swift-capacity" 
+                      name="swift_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="swift-objects">Swift objects:</label>
+                  <input type="text" class="form-control quotaform" id="swift-objects" 
+                      name="swift_objects" placeholder="">
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div id="createOSProjectMessage"></div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="submitOSProject">CreateProject</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock page-content %} 
+
+{% block scripts %} 
+<script
+  src="{% static 'scripts/openstack.js' %}"
+  crossorigin="anonymous">
+</script>
+
+<script
+  src="{% static 'scripts/generic.js' %}"
+  crossorigin="anonymous">
+</script>
+
+<script>
+$(document).ready(function() {
+  loadOSProjectList("{% url 'api.v1.openstack' %}");
+  loadOSQTemplates("{% url 'api.v1.quota' %}");
+  loadProjectList("{% url 'api.v1.project' %}");
+
+  $('#createQTemplate').click(function() {
+    prepareQTModal();
+  });
+  $('#createOSProject').click(function() {
+    prepareCreateOSProjectModal();
+  });
+
+  $('#quotatemplate').change(function(data) {
+    var id = $('#quotatemplate option:selected').attr("id");
+
+    if(id == 0) {
+      $('.quotaform').removeAttr('disabled');
+      $('#volumetypes').removeAttr('disabled');
+    } else {
+      $('.quotaform').attr('disabled', 'disabled');
+      $('#volumetypes').attr('disabled', 'disabled');
+
+      $.ajax({
+        url: "{% url 'api.v1.quota' %}" + id + "/",
+        success: function(result) {
+          $('form#newOSProjectForm').find('input#cpu_cores').
+              val(result['template']['cpu_cores']);
+          $('form#newOSProjectForm').find('input#ram').
+              val(result['template']['ram_gb']);
+          $('form#newOSProjectForm').find('input#cinder_gb').
+              val(result['template']['cinder_gb']);
+          $('form#newOSProjectForm').find('input#cinder_volumes').
+              val(result['template']['cinder_volumes']);
+          $('form#newOSProjectForm').find('input#swift-capacity').
+              val(result['template']['swift_gb']);
+          $('form#newOSProjectForm').find('input#swift-objects').
+              val(result['template']['swift_objects']);
+
+          $('.quotaform').removeAttr('disabled');
+          $('#volumetypes').removeAttr('disabled');
+        },
+      });
+    }
+  });
+
+  $('#volumetypes').change(function(data) {
+    var id = $('#volumetypes option:selected').attr("id");
+    $('#volumetypeid').val(id);
+  });
+
+  $('#parentProject').change(function(data) {
+    var id = $('#parentProject option:selected').attr("id");
+
+    $('form#newOSProjectForm').find("input[type=text], textarea").
+        attr('disabled', 'disabled');
+    $('#quotatemplate').attr('disabled', 'disabled');
+    $('#volumetypes').attr('disabled', 'disabled');
+    console.log(id);
+    $('#parentid').val(id);
+
+    if(id == 0) {
+      $('.quotaform').attr('placeholder', '');
+      $('#projectPrefix').html("");
+    } else {
+      $.ajax({
+        url: "{% url 'api.v1.project' %}" + id + "/",
+        success: function(result) {
+          $('form#newOSProjectForm').find('#cpu_cores').attr('placeholder', 
+              '(0 - ' + result['free']['cpu_cores'] + ')');
+          $('form#newOSProjectForm').find('#ram').attr('placeholder', 
+              '(0 - ' + result['free']['ram_gb'] + ')');
+          $('form#newOSProjectForm').find('#cinder_gb').attr('placeholder', 
+              '(0 - ' + result['free']['cinder_gb'] + ')');
+          $('form#newOSProjectForm').find('#cinder_volumes').attr('placeholder', 
+              '(0 - ' + result['free']['cinder_volumes'] + ')');
+          $('form#newOSProjectForm').find('#swift-capacity').attr('placeholder', 
+              '(0 - ' + result['free']['swift_gb'] + ')');
+          $('form#newOSProjectForm').find('#swift-objects').attr('placeholder', 
+              '(0 - ' + result['free']['swift_objects'] + ')');
+
+          if(result['projectprefix'] === "")
+            $('#projectPrefix').html("");
+          else
+            $('#projectPrefix').html(result['projectprefix'] + "_");
+
+          $('form#newOSProjectForm').find("input[type=text], textarea").
+              removeAttr('disabled');
+          $('#quotatemplate').removeAttr('disabled');
+          $('#volumetypes').removeAttr('disabled');
+          
+          if($('form#newOSProjectForm').find("input[name=osproject]").val() == 'create')
+            $('form#newOSProjectForm').find('input[name=name]').
+                removeAttr('disabled');
+        },
+      });
+    }
+  });
+
+  $('#submitQT').click(function() {
+    var data = $('form#newQT').serialize();
+    var id = $('form#newQT').find("input[name=id]").val()
+
+    if(id == '0') {
+      var url = "{% url 'api.v1.quota' %}";
+    } else {
+      var url = "{% url 'api.v1.quota' %}" + id + '/';
+    }
+
+    $.ajax({
+      url: url, 
+      type: 'post',
+      data: data,
+      success: function(data) {
+        $('#QTModal').modal('hide');
+        loadOSQTemplates("{% url 'api.v1.quota' %}");
+      },
+      error: function(data) {
+        $('#createQTMessage').html(
+            '<p class="alert alert-warning">' + 
+            data['responseText'] + '</p>'
+        );
+      },
+    });
+  });
+  $('#submitOSProject').click(function() {
+    var data = $('form#newOSProjectForm').serialize();
+    var id = $('form#newOSProjectForm').find("input[name=id]").val()
+
+    if(id == '0') {
+      var url = "{% url 'api.v1.openstack' %}";
+      var buttontext = 'Create';
+    } else {
+      var url = "{% url 'api.v1.openstack' %}" + id + '/';
+      var buttontext = 'Update';
+    }
+
+    $('button#submitOSProject').attr('disabled', 'disabled');
+    $('button#submitOSProject').html('<div class="spinner-border" role="status"></div>');
+
+    $.ajax({
+      url: url, 
+      type: 'post',
+      data: data,
+      success: function(data) {
+        $('#projectModal').modal('hide');
+        $('form#newOSProjectForm').find("input[type=text], textarea").val("");
+        $('form#newOSProjectForm').find("input[name=id]").val("0");
+        loadOSProjectList("{% url 'api.v1.openstack' %}");
+      },
+      error: function(data) {
+        $('#createOSProjectMessage').html(
+            '<p class="alert alert-warning">' + data['responseText'] + '</p>'
+        );
+
+        $('button#submitOSProject').html(buttontext);
+        $('button#submitOSProject').removeAttr('disabled');
+      },
+    });
+  });
+});
+</script>
+{% endblock scripts %} 

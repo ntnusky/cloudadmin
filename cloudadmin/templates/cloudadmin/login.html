@@ -34,9 +34,9 @@
       </p>
 
       {% if next %}
-        <form action="{% url 'login' %}?next={{ next }}" method="post" class="form-signin" >
+        <form action="{% url 'web.login' %}?next={{ next }}" method="post" class="form-signin" >
       {% else %}
-        <form action="{% url 'login' %}" method="post" class="form-signin" >
+        <form action="{% url 'web.login' %}" method="post" class="form-signin" >
       {% endif %}
         <h2 class="form-signin-heading">Authenticate:</h2>
         

@@ -1,0 +1,219 @@
+{% extends "base/main.html" %} 
+{% load staticfiles%}
+
+{% block page-content %}
+  <div class="row">
+    <div class="col-12">
+      <h1>Administrative tasks</h1>
+      <p>This page lets you administer the various cloud-admin project. A
+      cloud-admin project lets users from certain groups administer their own
+      openstack and s3 projects, within some set quotas.</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+      <h2>Projects</h2>
+      <p>The projects available in this application are:</p>
+      <div id="projectlist">
+        <div class="spinner-border" role="status">
+          <span class="sr-only">Loading projects.</span>
+        </div>
+      </div>
+      <p></p>
+      <button class="btn btn-success" id="createProject">Create new project</button>
+    </div>  
+  </div>
+
+  <!-- Project-modal -->
+  <div class="modal" id="projectModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Create project</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+  
+        <!-- Modal body -->
+        <div class="modal-body">
+          <form id="newProjectForm">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="0">
+            <div class="row">
+              <div class="col-12">
+                <h5>Project properties</h5>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="name">Projectname:</label>
+                  <input type="text" class="form-control" name="name" 
+                      id="name" placeholder="Project name">
+                </div>
+                <div class="form-group">
+                  <label for="parentProject">Parent project:</label>
+                  <select class="form-control" id="parentProject"
+                      name="parent">
+                    <option id="0">None</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="projectprefix">Project prefix:</label>
+                  <input type="text" class="form-control" name="projectprefix" 
+                      id="projectprefix" 
+                      placeholder="Force a prefix on openstack project names">
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="form-group">
+                  <label for="projectGroups">Group administrators (Multiple
+                  selectable):</label>
+                  <select class="form-control" size="9" name="projectGroups" id="projectGroups" multiple>
+                    {% for group in groups %}
+                      <option value="{{group.id}}">{{group.name}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="form-group">
+                  <label for="description">Description:</label>
+                  <textarea class="form-control" rows="5" id="description"
+                      name="description"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12">
+                <h5>Project quotas</h5>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cpu_cores">CPUs:</label>
+                  <input type="text" class="form-control quotaform" id="cpu_cores" 
+                      name="cpu_cores" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cinder_volumes">Cinder volumes:</label>
+                  <input type="text" class="form-control quotaform"
+                    id="cinder_volumes" name="cinder_volumes" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="swift-objects">Swift objects:</label>
+                  <input type="text" class="form-control quotaform" id="swift-objects" 
+                      name="swift_objects" placeholder="">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="ram">RAM (GB):</label>
+                  <input type="text" class="form-control quotaform" id="ram" 
+                      name="ram_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="cinder_gb">Cinder capacity (GB):</label>
+                  <input type="text" class="form-control quotaform" id="cinder_gb" 
+                      name="cinder_gb" placeholder="">
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="form-group">
+                  <label for="swift-capacity">Swift capacity (GB):</label>
+                  <input type="text" class="form-control quotaform" id="swift-capacity" 
+                      name="swift_gb" placeholder="">
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div id="createProjectMessage"></div>
+  
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="submitProject">CreateProject</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock page-content %} 
+
+{% block scripts %} 
+<script
+  src="{% static 'scripts/generic.js' %}"
+  crossorigin="anonymous">
+</script>
+
+  <script>
+$(document).ready(function() {
+  loadProjectList("{% url 'api.v1.project' %}");
+
+  $('#createProject').click(function() {
+    prepareCreateProjectModal();
+  });
+
+  $('#parentProject').change(function(data) {
+    var id = $('#parentProject option:selected').attr("id");
+    if(id == 0) {
+      $('.quotaform').attr('placeholder', '');
+    } else {
+      $.ajax({
+        url: "{% url 'api.v1.project' %}" + id + "/",
+        success: function(result) {
+          $('#cpu_cores').attr('placeholder', 
+              '(0 - ' + result['free']['cpu_cores'] + ')');
+          $('#ram').attr('placeholder', 
+              '(0 - ' + result['free']['ram_gb'] + ')');
+          $('#cinder_gb').attr('placeholder', 
+              '(0 - ' + result['free']['cinder_gb'] + ')');
+          $('#cinder_volumes').attr('placeholder', 
+              '(0 - ' + result['free']['cinder_volumes'] + ')');
+          $('#swift-capacity').attr('placeholder', 
+              '(0 - ' + result['free']['swift_gb'] + ')');
+          $('#swift-objects').attr('placeholder', 
+              '(0 - ' + result['free']['swift_objects'] + ')');
+        },
+      });
+    }
+  });
+
+  $('#submitProject').click(function() {
+    var data = $('form#newProjectForm').serialize();
+    var id = $('form#newProjectForm').find("input[name=id]").val()
+
+    if(id == '0') {
+      var url = "{% url 'api.v1.project' %}";
+    } else {
+      var url = "{% url 'api.v1.project' %}" + id + '/';
+    }
+
+    $.ajax({
+      url: url, 
+      type: 'POST',
+      data: data,
+      success: function(data) {
+        $('#projectModal').modal('hide');
+        $('form#newProjectForm').find("input[type=text], textarea").val("");
+        $('form#newProjectForm').find("input[name=id]").val("0");
+        loadProjectList("{% url 'api.v1.project' %}");
+      },
+      error: function(data) {
+        $('#createProjectMessage').html(
+            '<p class="alert alert-warning">' + data['responseText'] + '</p>'
+        );
+      },
+    });
+  });
+});
+  </script>
+{% endblock scripts %} 

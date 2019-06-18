@@ -1,50 +1,46 @@
 Cloudadmin - API punkt:
 
-login/:
+This file lists the current API endpoints. Required parameters and similar is
+currently only available in the view-files.
+
+All API points are under the url /api/v1/
+
+auth/:
   POST:   Authenticates a user
 
-logout/:
-  POST:   Unauthenticates a user
+deauth/:
+  GET:   Unauthenticates a user
+
+group/:
+  GET:  Get a list of groups in the system
 
 project/:
-  GET:    Get a "self-service" project
-  POST:   Create a new "self-service" project
-  DELETE: Delete a "self-service" project, and all its resources
-
-project/list/:
   GET:    List all projects you have access to.
+  POST:   Create a new cloud-admin project
 
-project/user/:
-  GET:    List users in a project
-  POST:   Add a user to a project
-  DELETE: Remove a user from a project
-
-project/quota/:
-  GET:    List a project quota
-  POST:   Update a project quota
+project/<int:projectID>/:
+  GET:    Get a cloud-admin project
+  POST:   Update a cloud-admin project
+  DELETE: Delete a cloud-admin project, and all its resources
 
 openstack/project/:
-  GET:    Get the status of a current openstack project
+  GET:    Lists the openstack-projects the user have access to.
   POST:   Creates a new openstack project
-  DELETE: Marks a current openstack-project for deletion
 
-openstack/project/quota/:
-  GET:    List a project quota
-  POST:   Update a project quota
+openstack/project/<project-id>/:
+  GET:    Get the information about a certain openstack project
+  POST:   Update an existing openstack project
+  DELETE: Delete a certain openstack project
 
-openstack/project/user/:
-  GET:    List users in a project
-  POST:   Add a user to a project
-  DELETE: Remove a user from a project
+openstack/project/<project-id>/assignments:
+  POST:   Add a role for a user in the project. 
+  DELETE: Revoke a role for a user in the project. 
 
-s3/users/:
-  GET:    List users with access to a certain projects s3
+quota/:
+  GET:    Get all current quota-templates 
+  POST:   Create a new quota-template
 
-s3/user/:
-  GET:    Retrieve a specific s3-user
-  POST:   Create a new s3-user
-  DELETE: Delete an existing s3-user
-
-s3/quota/:
-  GET:    List current quota/usage
-  POST:   Update current quota
+quota/<int:id/:
+  GET:    Get a certain quota-template
+  POST:   Create/Update a quota-template
+  DELETE: Delete a certain quota-template

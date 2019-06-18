@@ -12,8 +12,23 @@ localhost = 127.0.0.1
 
 [openstack]
 horizon = https://horizon.foo.bar.com
+region = first
+auth_url = https://api.foo.bar.com:5000/v3
+domain_name = default
+password = MySecret
+project_name = admin
+user_domain_name = default
+username = cloudadmin
+default_project_domain_id = foobarba7771234123918
 
 [LDAP]
 url = ldaps://foo.bar.com:636
 search-base = OU=Brukere,DC=foo,DC=bar,DC=com
+group-base = OU=Grupper,DC=foo,DC=bar,DC=com
 domain = foobar
+superusers = CN=admins,OU=Grupper,DC=foo,DC=bar,DC=com
+
+[Groups]
+department_1 = DEP1
+department_2 = DEP2
+department_2_sub = DEP2

@@ -8,6 +8,10 @@ body {
   margin-bottom: 60px;
 }
 
+.progressinfo {
+  margin-bottom: 1px;
+}
+
 .footer {
   position: absolute;
   bottom: 0;
